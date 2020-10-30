@@ -1,25 +1,25 @@
-resources:
-- name: pullrequest-resource
-  type: git
-  check_every: 10s
-  source:
-    uri: https://github.com/eroad/pullrequest-resource.git
-    branch: master
-    username: ((github-username))
-    password: ((github-password))
-- name: image
-  type: docker-image
-  source:
-    repository: eroadltd/pr
-    username: ((docker-username))
-    password: ((docker-password))
 jobs:
 - name: docker-build
-  serial: true
   plan:
   - in_parallel:
     - get: pullrequest-resource
       trigger: true
-  - put: image
-    params:
+  - params:
       build: pullrequest-resource
+    put: image
+  serial: true
+resources:
+- check_every: 10s
+  name: pullrequest-resource
+  source:
+    branch: master
+    password: ((github-password))
+    uri: https://github.com/eroad/pullrequest-resource.git
+    username: ((github-username))
+  type: git
+- name: image
+  source:
+    aws_access_key_id: ((aws-access-key))
+    aws_secret_access_key: ((aws-secret-key))
+    repository: 212136148154.dkr.ecr.ap-southeast-2.amazonaws.com/ci/pr
+  type: docker-image
